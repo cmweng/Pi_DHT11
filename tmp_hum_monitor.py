@@ -1,10 +1,13 @@
+##  利用TKinter設計GUI
+##  將溫溼度藏測值顯示在GUI判面
+##  以GUI按鈕控制監測開始、停止
 
 from tkinter import *
 import Adafruit_DHT
 import time
-import threading
+import threading        ##  多執行緒模組
 
-## 抓取溫溼度執行續物件
+## 抓取溫溼度執行緒物件
 class monitor(threading.Thread):
     def __init__(self):
         super(monitor, self).__init__()
