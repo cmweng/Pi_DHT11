@@ -3,9 +3,12 @@
 ##  以GUI按鈕控制監測開始、停止
 
 from tkinter import *
+from tkinter import messagebox
 import Adafruit_DHT
 import time             ##  
 import threading        ##  多執行緒模組
+import mysql.connector
+from mysql.connector import Error
 
 ## 抓取溫溼度執行緒物件
 class monitor(threading.Thread):
@@ -26,7 +29,10 @@ class monitor(threading.Thread):
                 roomhum.set(str(humidity)+' %')  
                 btn1.config(state="normal")
                 root.update_idletasks()
-                time.sleep(3)
+                ds_name = dataset_name.get()
+                insert_db(ds_name, temperature, humidity)
+
+                time.sleep(600)
  
     def resume(self):  # 用來恢復/啓動run
         with self.state:  # 在該條件下操作
@@ -40,17 +46,47 @@ class monitor(threading.Thread):
             roomhum.set(str("- - - -"))
 ##
 
+## 寫入資料庫
+def insert_db(ds,tmp,hum):
+    ##寫入資料庫
+    query = "INSERT INTO dht11s(dataset,temperature,humidity) VALUES(%s,%s,%s)"
+    args = (ds, tmp, hum)
+    conn = None
+    try:
+        conn = mysql.connector.connect(host = '192.168.86.32',
+                                       database = 'pi',
+                                       user = 'pi',
+                                       password = '123456')
+        cursor = conn.cursor()
+        cursor.execute(query, args)
+        conn.commit()
+    except Error as e:
+        print(e)
+    finally:
+        if conn != None :
+            cursor.close()
+            conn.close()
+        else:
+            pass
+
 ## 按鈕function
 def btnClick():
-    if btn1['text'] == "start":
-        btn1['text']="stop"
-        if get_Data.isAlive():
-            get_Data.resume()
+    if len(dataset_name.get()) != 0:
+        if btn1['text'] == "start":
+            btn1['text']="stop"
+            if get_Data.isAlive():
+                get_Data.resume()
+                DS.config(state='disabled')
+            else:
+                get_Data.start()
+                DS['state']='disabled'
         else:
-            get_Data.start()
+            get_Data.pause()
+            btn1['text']="start"
+            DS['state']='normal'
     else:
-        get_Data.pause()
-        btn1['text']="start"
+        messagebox.showerror("Error", "需先輸入Dataset Name")
+        pass
 
 
 ##  建立monitor執行續
@@ -71,7 +107,11 @@ root.rowconfigure(0, weight = 1)
 roomtmp = StringVar()       ##  溫度
 roomhum = StringVar()       ##  溼度
 btntxt = StringVar()        ##  按鈕
+dataset_name = StringVar()
 
+Label(mainframe, text = "Dataset Name:").grid(column = 2, row = 2, sticky = W,padx=(150,0), pady=5)
+DS = Entry(mainframe, textvariable = dataset_name ,fg = 'blue')
+DS.grid(column=3, row=2, sticky=(W,E),padx=(5,150), pady=5)
 
 
 Label(mainframe, text = "現在室內溫度：").grid(column = 2, row = 3, sticky = W,padx=(150,0), pady=5)
