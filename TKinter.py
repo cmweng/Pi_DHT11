@@ -1,3 +1,6 @@
+## TKinter 範例
+
+
 from tkinter import *  ## Python3 tkinter的t為小寫
 root = Tk()
 root.title("TKinter Demo")

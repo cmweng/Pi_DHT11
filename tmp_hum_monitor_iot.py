@@ -1,16 +1,18 @@
+##  開發環境Raspberry Pi 4B, Phython3.7.3, TKinter 8.6
 ##  利用TKinter設計GUI
-##  將溫溼度藏測值顯示在GUI判面
+##  將溫溼度藏測值顯示在GUI介面
 ##  以GUI按鈕控制監測開始、停止
+##  將溫、溼度資料窵入MySQL資料庫
 
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox     ##   引入 messagebox模組
 import Adafruit_DHT
-import time             ##  
+import time             ##  引入time模組
 import threading        ##  多執行緒模組
-import mysql.connector
-from mysql.connector import Error
+import mysql.connector  ##  狎入mysql.connector模組
+from mysql.connector import Error  ##  狎入mysql.connector Error物件
 
-## 抓取溫溼度執行緒物件
+## 抓取溫溼度執行緒
 class monitor(threading.Thread):
     def __init__(self):
         super(monitor, self).__init__()
@@ -32,7 +34,7 @@ class monitor(threading.Thread):
                 ds_name = dataset_name.get()
                 insert_db(ds_name, temperature, humidity)
 
-                time.sleep(600)
+                time.sleep(180)
  
     def resume(self):  # 用來恢復/啓動run
         with self.state:  # 在該條件下操作
@@ -46,7 +48,7 @@ class monitor(threading.Thread):
             roomhum.set(str("- - - -"))
 ##
 
-## 寫入資料庫
+## 寫入資料庫function
 def insert_db(ds,tmp,hum):
     ##寫入資料庫
     query = "INSERT INTO dht11s(dataset,temperature,humidity) VALUES(%s,%s,%s)"
@@ -92,7 +94,7 @@ def btnClick():
 ##  建立monitor執行續
 get_Data = monitor()
 
-
+## Tkinter GUI
 root = Tk()
 root.title("監測溫度、溼度")
 ## root.geometry('400x100')
@@ -104,9 +106,9 @@ root.columnconfigure(0, weight = 1)
 root.rowconfigure(0, weight = 1)
 
 ##  將溫、溼度以及案銨鈕顯示文字指定為字串變數
-roomtmp = StringVar()       ##  溫度
-roomhum = StringVar()       ##  溼度
-btntxt = StringVar()        ##  按鈕
+roomtmp = StringVar()       ##  溫度變數
+roomhum = StringVar()       ##  溼度變數
+btntxt = StringVar()        ##  按鈕變數
 dataset_name = StringVar()
 
 Label(mainframe, text = "Dataset Name:").grid(column = 2, row = 2, sticky = W,padx=(150,0), pady=5)

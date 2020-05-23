@@ -1,13 +1,14 @@
+##  開發環境Raspberry Pi 4B, Phython3.7.3, TKinter 8.6
 ##  利用TKinter設計GUI
-##  將溫溼度藏測值顯示在GUI判面
+##  將溫溼度藏測值顯示在GUI介面
 ##  以GUI按鈕控制監測開始、停止
 
 from tkinter import *
 import Adafruit_DHT
-import time             ##  
+import time             ##  引入time模組
 import threading        ##  多執行緒模組
 
-## 抓取溫溼度執行緒物件
+## 抓取溫溼度執行緒
 class monitor(threading.Thread):
     def __init__(self):
         super(monitor, self).__init__()
@@ -40,7 +41,7 @@ class monitor(threading.Thread):
             roomhum.set(str("- - - -"))
 ##
 
-## 按鈕function
+## 起動及停止按鈕function
 def btnClick():
     if btn1['text'] == "start":
         btn1['text']="stop"
@@ -56,7 +57,7 @@ def btnClick():
 ##  建立monitor執行續
 get_Data = monitor()
 
-
+## Tkinter GUI
 root = Tk()
 root.title("監測溫度、溼度")
 ## root.geometry('400x100')
@@ -68,9 +69,9 @@ root.columnconfigure(0, weight = 1)
 root.rowconfigure(0, weight = 1)
 
 ##  將溫、溼度以及案銨鈕顯示文字指定為字串變數
-roomtmp = StringVar()       ##  溫度
-roomhum = StringVar()       ##  溼度
-btntxt = StringVar()        ##  按鈕
+roomtmp = StringVar()       ##  溫度變數
+roomhum = StringVar()       ##  溼度變數
+btntxt = StringVar()        ##  按鈕變數
 
 
 
@@ -94,6 +95,5 @@ roomhum.set(str("- - -"))
 
 ##  按鈕值需設為"start"
 btntxt.set("start")
-
 
 root.mainloop()
