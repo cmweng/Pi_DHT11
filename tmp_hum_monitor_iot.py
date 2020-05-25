@@ -24,17 +24,22 @@ class monitor(threading.Thread):
     def run(self):
         sensor = Adafruit_DHT.DHT11
         pin = 4
+        output_count = 0        
         while True:
             humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
             if humidity is not None and temperature is not None and btn1['text']=='stop':
-                roomtmp.set(str(temperature) + '℃')
-                roomhum.set(str(humidity) + ' %')
+                roomtmp.set(str(temperature)+'℃')
+                roomhum.set(str(humidity)+' %')  
                 btn1.config(state="normal")
                 root.update_idletasks()
                 ds_name = dataset_name.get()
-                insert_db(ds_name, temperature, humidity)
-
-                time.sleep(180)
+                if output_count < 180:
+                    output_count = output_count + 1
+                if output_count == 0:
+                    insert_db(ds_name, temperature, humidity)
+                else:
+                    insert_db(ds_name, temperature, humidity)
+                    output_count = 1
 
     def resume(self):  # 用來恢復/啓動run
         with self.state:  # 在該條件下操作
@@ -115,7 +120,7 @@ dataset_name = StringVar()
 
 Label(mainframe, text="Dataset Name:").grid(column=2, row=2, sticky=W, padx=(150, 0), pady=5)
 DS = Entry(mainframe, textvariable=dataset_name, fg='blue')
-DS.grid(column=3, row=2, sticky=(WE), padx=(5, 150), pady=5)
+DS.grid(column=3, row=2, sticky=(W, E), padx=(5, 150), pady=5)
 
 
 Label(mainframe, text="現在室內溫度：").grid(column=2, row=3, sticky=W, padx=(150, 0), pady=5)
@@ -123,10 +128,10 @@ Label(mainframe, text="現在室內溫度：").grid(column=2, row=3, sticky=W, p
 # 溫度值label,顯示溫度值
 Label(mainframe, textvariable=roomtmp).grid(column=3, row=3, sticky=(W, E), padx=(5, 150), pady=5)
 
-Label(mainframe, text = "現在室內溼度：").grid(column=2, row=5, sticky=W, padx=(150, 0), pady=5)
+Label(mainframe, text="現在室內溼度：").grid(column=2, row=5, sticky=W,padx=(150,0), pady=5)
 
 # 溼度值label,顯示溼度值
-Label(mainframe, textvariable=roomhum).grid(column=3, row=5, sticky=(W, E), padx=(5,1 50), pady=5)
+Label(mainframe, textvariable=roomhum).grid(column=3, row=5, sticky=(W,E),padx=(5,150), pady=5)
 
 # 開始/停止按鈕
 btn1 = Button(mainframe, text="start", command=btnClick, pady=5)

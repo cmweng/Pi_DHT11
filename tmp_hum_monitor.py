@@ -75,8 +75,6 @@ roomtmp = StringVar()       # 溫度變數
 roomhum = StringVar()       # 溼度變數
 btntxt = StringVar()        # 按鈕變數
 
-
-
 Label(mainframe, text="現在室內溫度：").grid(column=2, row=3, sticky=W, padx=(150, 0), pady=5)
 
 # 溫度值label,顯示溫度值
